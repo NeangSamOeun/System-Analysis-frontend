@@ -1,140 +1,126 @@
-// src/components/auth/SignInForm.tsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
+import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { login } from "../../services/authService";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // React Router navigation
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (!username || !password) {
-      setError("Username and password are required");
+    if (!email || !password) {
+      setError("Email and password are required");
       return;
     }
 
     try {
-      const data = await login(username, password);
-
-      // Save token & role
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.role);
-
-      console.log("Login success", data);
-
-      // Navigate to home page
-      navigate("/dashboard");
+      setLoading(true);
+      const data = await login(email, password);
+      sessionStorage.setItem("otp-email", email);
+      navigate("/otp");
     } catch (err: any) {
       console.error(err);
-      setError("Invalid username or password");
+      setError("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-screen justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 sm:p-10">
-        {/* <Link
-          to="/TailAdmin/"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 mb-6"
-        >
-          <ChevronLeftIcon className="size-5" />
-          Back to dashboard
-        </Link> */}
+    <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
 
-        <h1 className="mb-2 font-semibold text-gray-800 text-2xl dark:text-white">
-          Sign In
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-          Enter your username and password to sign in!
-        </p>
+      {/* Background Blue Circles */}
+      <div className="absolute -top-40 -left-40 w-[450px] h-[450px] bg-[#00143E] border-[6px] border-yellow-400 rounded-full"></div>
+      <div className="absolute -bottom-40 -right-40 w-[450px] h-[450px] bg-[#00143E] border-[6px] border-yellow-400 rounded-full"></div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Login Box */}
+      <div className="w-full max-w-md mx-auto bg-white rounded-[20px] shadow-md p-10 z-10 border border-gray-200">
+
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img src="https://www.acledabank.com.kh/kh/assets/layout/logo-acs.png" alt="ACLEDA Logo" className="w-40" />
+        </div>
+
+        {/* FORM START ✅ */}
+        <form onSubmit={handleSubmit}>
+
           {/* Username */}
-          <div>
-            <Label>
-              Username <span className="text-error-500">*</span>
-            </Label>
-            <Input
-              type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+          <div className="mb-4">
+            <Label>Username</Label>
+            <div className="relative">
+              <Input
+                className="pl-10 rounded-xl bg-[#F2F2F2]"
+                placeholder="Username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <i className="fa fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+            </div>
           </div>
 
           {/* Password */}
-          <div>
-            <Label>
-              Password <span className="text-error-500">*</span>
-            </Label>
+          <div className="mb-6">
+            <Label>Password</Label>
             <div className="relative">
               <Input
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                className="pl-10 rounded-xl bg-[#F2F2F2]"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <i className="fa fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+
               <span
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
               >
                 {showPassword ? (
-                  <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                  <EyeIcon className="size-5 text-gray-500" />
                 ) : (
-                  <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                  <EyeCloseIcon className="size-5 text-gray-500" />
                 )}
               </span>
             </div>
           </div>
 
-          {/* Keep me logged in */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Checkbox checked={isChecked} onChange={setIsChecked} />
-              <span className="block font-normal text-gray-700 dark:text-gray-400 text-sm">
-                Keep me logged in
-              </span>
-            </div>
-            <Link
-              to="#!"
-              className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
-            >
-              Forgot password?
-            </Link>
-          </div>
+          {/* Error Message */}
+          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-          {/* Error */}
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          {/* Submit button */}
-          <div>
-            <Button type="submit" className="w-full" size="sm">
-              Sign In
-            </Button>
-          </div>
-        </form>
-
-        <p className="mt-5 text-center text-gray-700 dark:text-gray-400 text-sm">
-          Don&apos;t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+          {/* Login Button */}
+          <Button
+            variant="custom"
+            type="submit"
+            className="w-full rounded-xl bg-[#081A3E] hover:bg-[#0c244f] text-white"
+            size="sm"
+            disabled={loading}
           >
-            Sign Up
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+
+        </form>
+        {/* FORM END ✅ */}
+
+        {/* Footer */}
+        <p className="text-center mt-3 text-sm">
+          <Link to="#" className="text-gray-500 hover:text-gray-700">
+            Forgot your password?
           </Link>
+        </p>
+
+        <p className="text-center text-gray-500 text-xs mt-6">
+          Copyright 2025 by ACLEDA University of Business. All Rights Reserved.
         </p>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import NotFound from "./pages/OtherPage/NotFound";
@@ -18,18 +18,46 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import OTPSign from "./pages/AuthPages/OTPSignIn";
+import SignInForm from "./components/auth/SignInForm";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import ProtectedOTPRoute from "./routes/ProtectedOTPRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 export default function App() {
   return (
-    <>
-      <Router>
+    <Router>
       <ScrollToTop />
       <Routes>
-        {/*  Redirect root to SignIn */}
+        {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Dashboard Layout */}
-        <Route path="/" element={<AppLayout />}>
+        {/* Public Routes (NO AUTH) */}
+        <Route path="/login"
+        element={
+        <PublicRoute>
+        <SignInForm />
+      </PublicRoute>
+  }
+/>
+        <Route path="/signup" element={<SignUp />} />
+        {/* <Route path="/otp" element={<OTPSign />} /> */}
+
+        <Route path="/otp" element={
+          <ProtectedOTPRoute>
+            <OTPSign />
+          </ProtectedOTPRoute>
+        }/>
+
+        {/*Private Routes (AUTH REQUIRED) */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="dashboard" element={<Home />} />
           <Route path="profile" element={<UserProfiles />} />
           <Route path="calendar" element={<Calendar />} />
@@ -46,14 +74,9 @@ export default function App() {
           <Route path="bar-chart" element={<BarChart />} />
         </Route>
 
-        {/* Auth Layout */}
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-
-        {/* Fallback Route */}
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
-    </>
   );
 }
