@@ -1,9 +1,11 @@
 import API from "../environment/api";
 
-export const login = async (username: string, password: string) => {
+export const login = async (email: string, password: string) => {
   const response = await API.post("/Auth/login", {
-    username,
+    email,
     password,
   });
   return response.data;
 };
+
+
