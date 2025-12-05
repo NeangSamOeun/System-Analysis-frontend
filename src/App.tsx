@@ -23,6 +23,14 @@ import SignInForm from "./components/auth/SignInForm";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ProtectedOTPRoute from "./routes/ProtectedOTPRoute";
 import PublicRoute from "./routes/PublicRoute";
+import StudentEnrollmentForm from "./components/students/StudentEnrollmentForm";
+import GetUsers from "./components/form/create-user/GetUsers";
+import CreateUserPage from "./components/form/create-user/CreateUserPage";
+import CreateMajor from "./components/major/CreateMajor";
+import GetMajors from "./components/major/GetMajors";
+import StudentList from "./components/students/StudentList";
+import StudentDetail from "./components/students/StudentDetail";
+
 
 export default function App() {
   return (
@@ -31,27 +39,30 @@ export default function App() {
       <Routes>
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-
-        {/* Public Routes (NO AUTH) */}
-        <Route path="/login"
-        element={
-        <PublicRoute>
-        <SignInForm />
-      </PublicRoute>
-  }
-/>
-        <Route path="/signup" element={<SignUp />} />
-        {/* <Route path="/otp" element={<OTPSign />} /> */}
-
-        <Route path="/otp" element={
-          <ProtectedOTPRoute>
-            <OTPSign />
-          </ProtectedOTPRoute>
-        }/>
-
-        {/*Private Routes (AUTH REQUIRED) */}
+        {/* Public */}
         <Route
-          path="/"
+          path="/login"
+          element={
+            <PublicRoute>
+              <SignInForm />
+            </PublicRoute>
+          }
+        />
+        <Route path="/signup" element={<SignUp />} />
+
+        {/* OTP Protected */}
+        <Route
+          path="/otp"
+          element={
+            <ProtectedOTPRoute>
+              <OTPSign />
+            </ProtectedOTPRoute>
+          }
+        />
+
+        {/* App Protected Area */}
+        <Route
+          path=""
           element={
             <ProtectedRoute>
               <AppLayout />
@@ -72,6 +83,18 @@ export default function App() {
           <Route path="videos" element={<Videos />} />
           <Route path="line-chart" element={<LineChart />} />
           <Route path="bar-chart" element={<BarChart />} />
+
+          {/* User Management */}
+          <Route path="enroll" element={<StudentEnrollmentForm/>} />
+          <Route path="users" element={<GetUsers />} />
+          <Route path="user-create" element={<CreateUserPage />} />
+
+          <Route path="create-major" element={<CreateMajor/>} />
+          <Route path="get-major" element={<GetMajors/>} />
+          <Route path="student-list" element={<StudentList/>} />
+          {/* <Route path="/Enrollment/detail/:id" element={<StudentDetail/>} /> */}
+          <Route path="/Enrollment/detail/:id" element={<StudentDetail />} />
+
         </Route>
 
         {/* 404 */}

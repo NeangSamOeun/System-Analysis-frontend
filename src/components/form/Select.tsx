@@ -11,6 +11,7 @@ interface SelectProps {
   onChange: (value: string) => void;
   className?: string;
   defaultValue?: string;
+  value?: any;
 }
 
 const Select: React.FC<SelectProps> = ({

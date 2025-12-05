@@ -17,6 +17,7 @@ import {
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
+import {Home, FileBarChart  , Users,GraduationCap, Book  } from "lucide-react"
 
 type NavItem = {
   name: string;
@@ -29,12 +30,31 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "#!", pro: false }],
+    path: "dashboard"
+    // subItems: [{ name: "Ecommerce", path: "#!", pro: false }],
+  },
+  // {
+  //   icon: <CalenderIcon />,
+  //   name: "Calendar",
+  //   path: "calendar",
+  // },
+  {
+    icon: <Users/>,
+    name: "Users Management",
+    path: "users",
   },
   {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "calendar",
+    icon: <GraduationCap />,
+    name: "Student Management",
+    subItems: [
+      { name: "Enrollment Student", path: "enroll", pro: false },
+      { name: "Student Lists", path: "student-list", pro: false },
+    ],
+  },
+  {
+    icon: <Book />,
+    name: "Major Management",
+    path: "get-major",
   },
   {
     icon: <UserCircleIcon />,
@@ -58,6 +78,15 @@ const navItems: NavItem[] = [
       { name: "Blank Page", path: "blank", pro: false },
       { name: "404 Error", path: "error-404", pro: false },
     ],
+  },
+  {
+    icon: <FileBarChart  />,
+    name: "Report",
+    path: "/"
+    // subItems: [
+    //   { name: "Blank Page", path: "blank", pro: false },
+    //   { name: "404 Error", path: "error-404", pro: false },
+    // ],
   },
 ];
 
@@ -303,7 +332,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link to="/TailAdmin/">
+        <Link to="/dashboard/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <img
