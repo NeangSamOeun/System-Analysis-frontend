@@ -39,7 +39,7 @@ export default function OTPSign() {
       }
     } catch (err: any) {
       setLoading(false);
-      alert(err.response?.data || "Error verifying OTP ❌");
+      // alert(err.response?.data || "Error verifying OTP ❌");
     }
   };
 

@@ -1,0 +1,37 @@
+export interface StudentDetail {
+  studentId: string;
+  code: string;
+  firstName: string;
+  lastName: string;
+  sex: string;
+  dob: string | null;
+  nationality: string | null;
+  telegram: string | null;
+  fatherName: string | null;
+  motherName: string | null;
+  education: string | null;
+  bacIIGrade: string | null;
+  bacIICertificateCode: string | null;
+  bacIIYear: number | null;
+  highSchoolName: string | null;
+  highSchoolLocation: string | null;
+  careerType: string | null;
+  academicUnit: string | null;
+  country: string | null;
+  province: string | null;
+  district: string | null;
+  commune: string | null;
+  village: string | null;
+  phoneNumber: string | null;
+  guardianNumber: string | null;
+  emergencyName: string | null;
+  relationship: string | null;
+  emergencyContact: string | null;
+  emergencyWorkplace: string | null;
+  majorId: number | null;
+  majorName: string | null;
+  registerDate: string | null;
+  registerType: string | null;
+  status: string | null;
+  batch: string | null;
+}
