@@ -94,6 +94,8 @@ export default function App() {
           <Route path="student-list" element={<StudentList/>} />
           {/* <Route path="/Enrollment/detail/:id" element={<StudentDetail/>} /> */}
           <Route path="/Enrollment/detail/:id" element={<StudentDetail />} />
+          <Route path="/enrollment/edit/:id" element={<StudentEnrollmentForm />} /> {/* Edit route */}
+
 
         </Route>
 

@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Badge from "../ui/badge/Badge";
 import { formatDate } from "../dateFormatter/dateFormatter";
-import { getStudentDetail } from "../../services/studentService";
+import { getStudentDetail, updateStatus } from "../../services/studentService";
 import Button from "../ui/button/Button";
 import { StudentDetail } from "./StudentInterface";
-import {ArrowLeft} from "lucide-react";
+import {ArrowLeft, Edit} from "lucide-react";
+import UpdateStatusModal from "../ui/modal/UpdateStatusModal";
 
 export default function EnrollmentDetail() {
   const { id } = useParams();
@@ -13,6 +14,7 @@ export default function EnrollmentDetail() {
 
   const [data, setData] = useState<StudentDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
 
   useEffect(() => {
     loadDetail();
@@ -28,6 +30,21 @@ export default function EnrollmentDetail() {
       setLoading(false);
     }
   };
+ // update status
+const handleUpdateStatus = async (newStatus: string) => {
+  try {
+    await updateStatus({
+      studentId: data!.studentId,
+      status: newStatus
+    });
+
+    await loadDetail(); // Refresh UI
+  } catch (err) {
+    console.error("Update status failed", err);
+  }
+};
+
+
 
   if (loading)
     return (
@@ -42,14 +59,26 @@ export default function EnrollmentDetail() {
     );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6">
+    <>
+    <div className="mx-auto px-4 py-6">
       {/* Back Button */}
+      <div className="flex items-center gap-4 mb-6">
       <Button
         onClick={() => navigate(-1)}
-        className="mb-6 text-black px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-sm border"
-      >
+        className="text-black px-4 py-2 bg-gray-500 hover:bg-gray-400 rounded-lg shadow-sm border">
         <ArrowLeft size={18} />Back
       </Button>
+      {/* Update Status  */}
+              <Button className="text-white px-4 py-2 bg-green-400 hover:bg-green-500 rounded-lg shadow-sm border"
+              onClick={() => setStatusModalOpen(true)}>
+                Update Status
+              </Button>
+      <Button
+        onClick={() => navigate(`/enrollment/edit/${data.studentId}`)}
+        className="">
+        <Edit size={18} />Edit
+      </Button>
+    </div>
 
       {/* Title */}
       <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-400">
@@ -61,7 +90,6 @@ export default function EnrollmentDetail() {
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
         {/* Card Component */}
         <DetailCard title="Basic Information">
           <DetailRow label="Code" value={data.code} />
@@ -104,15 +132,33 @@ export default function EnrollmentDetail() {
         <DetailCard title="Academic Info">
           <DetailRow label="Major" value={data.majorName ?? "No Major"} />
           <DetailRow label="Batch" value={data.batch ?? "-"} />
-          <div className="flex items-center gap-3 py-[6px]">
+          <div className="flex items-center py-[6px]">
             <span className="font-semibold text-gray-600 w-40">Status:</span>
-            <Badge color="primary">{data.status ?? "N/A"}</Badge>
+            <Badge color={
+                      data.status === "Approved"
+                          ? "success"
+                          : data.status === "Active"
+                          ? "success"
+                          : data.status === "Pending"
+                          ? "warning"
+                          : data.status === "Rejected"
+                          ? "error"
+                          : "light"
+                    }  >{data.status ?? "-"}
+            </Badge>
           </div>
           <DetailRow label="Register Date" value={formatDate(data.registerDate)} />
         </DetailCard>
 
       </div>
     </div>
+    <UpdateStatusModal
+      isOpen={statusModalOpen}
+      onClose={() => setStatusModalOpen(false)}
+      currentStatus={data.status ?? "Pending"}
+      onConfirm={handleUpdateStatus}
+    />
+  </>
   );
 }
 

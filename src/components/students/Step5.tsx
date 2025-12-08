@@ -95,9 +95,16 @@ useEffect(() => {
         {/* Status */}
         <div>
           <Label>Status</Label>
-          <Input
+          <Select
+            options={[
+              { value: "Pending", label: "Pending" },
+              { value: "Approved", label: "Approved" },
+              { value: "Rejected", label: "Rejected" },
+            ]}
+            placeholder="Select Status"
             value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            onChange={(value) => setForm({ ...form, status: value })}
+            className="dark:bg-dark-900"
           />
         </div>
 
