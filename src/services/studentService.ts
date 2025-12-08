@@ -15,3 +15,14 @@ export async function queryList(page: number, pageSize: number, search: string){
     params : {page, pageSize, search}
   });
 }
+
+export async function deleteStudent(studentId: string) {
+  return await api.delete(`/Enrollment/${studentId}`);
+}
+
+
+
+export async function updateStatus(payload: { studentId: string; status: string }) {
+  return await api.patch(`/Enrollment/update-status`, payload);
+}
+

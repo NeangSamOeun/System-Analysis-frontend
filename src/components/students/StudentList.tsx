@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Edit, Trash, Eye, Search, RefreshCcw } from "lucide-react";
-import { getStudents, queryList } from "../../services/studentService";
+import { deleteStudent, getStudents, queryList } from "../../services/studentService";
 import { Table, TableBody, TableCell, TableHeader, TableRow } from "../ui/table";
 import Pagination from "../common/Pagination";
 import Badge from "../ui/badge/Badge";
@@ -10,6 +10,7 @@ import Loader from "../common/Loader";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import useBaseRefresh from "../../hooks/useBaseRefresh";
+import DeleteModal from "../ui/modal/DeleteModal";
 
 interface Student {
   studentId: string;
@@ -29,6 +30,9 @@ interface Student {
 const StudentList = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedCode, setSelectedCode] = useState<string | null>(null);
 
   const navigate = useNavigate();
 
@@ -48,7 +52,7 @@ const StudentList = () => {
   useEffect(() => {
     loadStudents();
   }, [currentPage, itemsPerPage]);
-
+  
   const loadStudents = async () => {
     try {
       const res = search.trim()
@@ -69,6 +73,24 @@ const StudentList = () => {
     setCurrentPage(1);
     loadStudents();
   };
+
+  const handleConfirmDelete = async () => {
+  if (!selectedId) return;
+
+  try {
+    setLoading(true);
+    await deleteStudent(selectedId);
+    refresh(loadStudents);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to delete student");
+  } finally {
+    setSelectedId(null);
+    setSelectedCode(null);
+    setDeleteModalOpen(false);
+    setLoading(false);
+  }
+};
   if (loading) return <Loader />;
 
   return (
@@ -87,10 +109,10 @@ const StudentList = () => {
                 type="text"
                 placeholder="Search student..."
                 className="px-3 py-2 text-sm rounded-lg border border-gray-300 
-                           focus:ring-green-500 
+                          focus:ring-green-500 
                           dark:bg-gray-800 dark:text-white dark:border-gray-700 w-9 sm:w-60"/>
               <Button 
-                 onClick={handleSearch}
+                onClick={handleSearch}
                 className="inline-flex items-center justify-center gap-2 
                           rounded-lg bg-green-500 px-4 py-2.5 
                           text-white shadow 
@@ -144,58 +166,44 @@ const StudentList = () => {
                 </TableRow>
               ) : (
                 students.map((s, idx) => (
-                  <TableRow
-                    key={s.studentId}
-                    className="transition-all hover:bg-gray-50 dark:hover:bg-white/10"
-                  >
-                    <TableCell className="pl-2 text-gray-500 dark:text-gray-400">
-                      {(currentPage - 1) * itemsPerPage + idx + 1}
-                    </TableCell>
-
+                  <TableRow key={s.studentId} className="transition-all hover:bg-gray-50 dark:hover:bg-white/10">
+                    <TableCell className="pl-2 text-gray-500 dark:text-gray-400">{(currentPage - 1) * itemsPerPage + idx + 1}</TableCell>
                     <TableCell className="text-gray-500 dark:text-gray-400">{s.code}</TableCell>
-
-                    <TableCell className="text-gray-500 dark:text-gray-400">
-                      {s.firstName}
-                    </TableCell>
-
-                    <TableCell className="text-gray-500 dark:text-gray-400">
-                      {s.lastName}
-                    </TableCell>
-
+                    <TableCell className="text-gray-500 dark:text-gray-400">{s.firstName}</TableCell>
+                    <TableCell className="text-gray-500 dark:text-gray-400">{s.lastName}</TableCell>
                     <TableCell className="text-gray-500 dark:text-gray-400">{s.sex}</TableCell>
-
                     <TableCell className="text-gray-500 dark:text-gray-400">{s.phoneNumber ?? "-"}</TableCell>
                     <TableCell className="text-gray-500 dark:text-gray-400">{formatDate(s.dob)}</TableCell>
                     <TableCell className="text-gray-500 dark:text-gray-400">{formatDate(s.registerDate)}</TableCell>
-                     <TableCell>
-                      <Badge color="primary">
-                        {s.major ?? "N/A"}
-                      </Badge>
-                    </TableCell>
+                    <TableCell><Badge color="primary"> {s.major ?? "N/A"}</Badge></TableCell>
                     <TableCell className="text-gray-500 dark:text-gray-400">{s.batch ?? "-"}</TableCell>
-                    <TableCell className="text-gray-500 dark:text-gray-400">{s.status ?? "-"}</TableCell>
-
-
+                    <TableCell><Badge color={
+                      s.status === "Approved"
+                          ? "success"
+                          : s.status === "Active"
+                          ? "success"
+                          : s.status === "Pending"
+                          ? "warning"
+                          : s.status === "Rejected"
+                          ? "error"
+                          : "light"
+                    }  >{s.status ?? "-"}</Badge></TableCell>
                     <TableCell>
                       <div className="flex justify-center items-center gap-3">
-                        <button
-                          className="text-blue-500 hover:text-blue-600 transition"
-                            onClick={() => navigate(`/Enrollment/detail/${s.studentId}`)}
-                        >
+                        <button className="text-blue-500 hover:text-blue-600 transition"
+                          onClick={() => navigate(`/Enrollment/detail/${s.studentId}`)}>
                           <Eye size={16} />
                         </button>
-
-                        <button
-                          className="text-green-500 hover:text-green-600 transition"
-                          onClick={() => alert(`Edit student ${s.code}`)}
-                        >
+                        <button className="text-green-500 hover:text-green-600 transition"
+                          onClick={() => alert(`Edit student ${s.code}`)}>
                           <Edit size={16} />
                         </button>
-
-                        <button
-                          className="text-red-500 hover:text-red-600 transition"
-                          onClick={() => alert(`Delete student ${s.code}`)}
-                        >
+                        <button className="text-red-500 hover:text-red-600 transition"
+                           onClick={() => {
+                            setSelectedId(s.studentId);
+                            setSelectedCode(s.code);
+                            setDeleteModalOpen(true);
+                          }}>
                           <Trash size={16} />
                         </button>
                       </div>
@@ -206,7 +214,6 @@ const StudentList = () => {
             </TableBody>
           </Table>
         </div>
-
         {/* PAGINATION FIXED */}
         <Pagination
           totalItems={totalRecords}
@@ -218,7 +225,15 @@ const StudentList = () => {
             setCurrentPage(1);
           }}
         />
-      </div>
+
+      <DeleteModal
+        isOpen={deleteModalOpen}
+        closeModal={() => setDeleteModalOpen(false)}
+        studentCode={selectedCode || ""}
+        onConfirm={handleConfirmDelete}
+        />
+        </div>
+
     </>
   );
 };
